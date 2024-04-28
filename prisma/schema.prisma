@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Podcast {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  desc       String?
+  image      String
+  rssUrl     String
+  webSite    String?
+  createdAt  DateTime  @default(now())
+  lastUpdate DateTime?
+
+  @@index([rssUrl], name: "idx_rssUrl")
+  @@index([name], name: "idx_name")
+}
+
+model Episodes {
+  id          Int      @id @default(autoincrement())
+  podcastId   Int
+  title       String
+  audio       String
+  img         String?
+  publishedAt DateTime
+  duration    String
+  description String?
+  Listened    Boolean  @default(false)
+
+  @@unique([podcastId, title])
+  @@index([podcastId], name: "idx_podcastId")
+}
