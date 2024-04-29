@@ -1,13 +1,17 @@
 import {db} from "@lib/db/db";
-import { getLastedPodcastRss } from "@lib/podcastRssParser";
-import {
-  findPodcast,
-  getEpisodes,
-  saveOrUpdateEpisodes,
-} from "@lib/service/podcast";
+import {getLastedPodcastRss} from "@lib/podcastRssParser";
+import {findPodcast, getEpisodes, saveOrUpdateEpisodes} from "@lib/service/podcast";
 
 export async function fetchPodcastChannel() {
   return db.podcast.findMany({});
+}
+
+export async function deletePodcast(podcastId: number) {
+  const [e, p] = await db.$transaction([
+    db.podcast.delete({where: {id: podcastId}}),
+    db.episodes.deleteMany({where: {podcastId: podcastId}}),
+  ]);
+  return true;
 }
 
 export async function queryPodcastEpisodes(podcastId: number) {

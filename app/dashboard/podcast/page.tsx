@@ -1,4 +1,4 @@
-import PodcastRssFeeds from "@components/podcast/podcastRssFeed";
+import PodcastList from "@components/podcast/podcastList";
 import {fetchPodcastChannel} from "@lib/data/podcast";
 
 import type {Podcast} from "@types";
@@ -19,7 +19,7 @@ export default async function PodcastPage() {
       <div className="flex-1 space-y-4  p-4 md:p-8 pt-6">
         <BreadCrumb items={breadcrumbItems} />
 
-        <PodcastRssFeeds podcastRssFeeds={podcasts} />
+        <PodcastList podcasts={podcasts} />
       </div>
     </ScrollArea>
   );
