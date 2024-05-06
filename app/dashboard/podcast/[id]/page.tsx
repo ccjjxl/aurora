@@ -1,5 +1,5 @@
+import DashboardContainer from "@components/dashboard/container";
 import {EpisodesContainer} from "@components/podcast/episodes/episodesContainer";
-import BreadCrumb from "@components/shared/breadcrumb";
 import {getPodcastRssFeed} from "@lib/service/podcast";
 import {Metadata} from "next";
 
@@ -23,11 +23,9 @@ const PodcastRssFeedPage = async ({params}: FeedProps) => {
     {title: podcastInfo.name, link: "/dashboard/podcast"},
   ];
   return (
-    <div className="flex-1 space-y-4  p-4 md:p-8 pt-6 flex flex-col">
-      <BreadCrumb items={breadcrumbItems} />
-
+    <DashboardContainer breadcrumb={breadcrumbItems} className="flex flex-col">
       <EpisodesContainer key={podcastInfo.id} podcastInfo={podcastInfo} />
-    </div>
+    </DashboardContainer>
   );
 };
 

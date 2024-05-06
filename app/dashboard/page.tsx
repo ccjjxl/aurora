@@ -2,6 +2,7 @@ import {auth} from "@auth";
 
 import React from "react";
 import ImportPodcast from "@components/podcast/importPodcast";
+import DashboardContainer from "@components/dashboard/container";
 
 export default async function Dashboard() {
   const session = await auth();
@@ -9,10 +10,8 @@ export default async function Dashboard() {
     return <div>Not authenticated</div>;
   }
   return (
-
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 flex  flex-col gap-5">
+    <DashboardContainer>
       <ImportPodcast />
-    </div>
-
+    </DashboardContainer>
   );
 }

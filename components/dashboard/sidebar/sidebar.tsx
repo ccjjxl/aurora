@@ -1,39 +1,18 @@
-import MenuLink from "./menuLink/menuLink";
-import {MdDashboard, MdLogout, MdRssFeed} from "react-icons/md";
-import {auth, signOut} from "@auth";
-import {Button} from "@components/ui/button";
+'use client'
 import Image from "next/image";
+import SideMenu from "./sidemenu";
+import LogOut from "./logout";
+import { useState } from "react";
+import { cn } from "@lib/utils";
 
-const menuItems = [
-  {
-    title: "dashboard",
-    list: [
-      {
-        title: "Overview",
-        path: "/dashboard",
-        icon: <MdDashboard className="mr-2 h-4 w-4" />,
-      },
-    ],
-  },
-  {
-    title: "podcast",
-    list: [
-      {
-        title: "Subscription",
-        path: "/dashboard/podcast",
-        icon: <MdRssFeed className="mr-2 h-4 w-4" />,
-      },
-    ],
-  },
-];
+const Sidebar =  ({session}: {session: any}) => {
 
-const Sidebar = async () => {
-  const session = await auth();
+  const [sideMenuIsExpand, setSideMenuIsExpand] = useState(true);
 
+  
   return (
-    <nav className="flex flex-col justify-between  h-screen min-w-[200px] ">
-      <div className="navbar">
-
+    <nav className={cn("flex flex-col justify-between  h-screen  ", sideMenuIsExpand ? "w-[200px]" : "w-[60px]")}>
+      <div className="navbar relative">
         <div className={`flex items-center gap-5   border-b p-1`}>
           <Image
             className="rounded object-cover"
@@ -42,46 +21,16 @@ const Sidebar = async () => {
             width="40"
             height="40"
           />
-          <div className="flex flex-col">
-            <span className="font-bold">{session?.user?.name}</span>
+          <div className={cn("flex flex-col", sideMenuIsExpand ? "" : "hidden")}>
+            <span className="font-bold">{session.user?.name}</span>
             <span className="text-xs">Administrator</span>
           </div>
         </div>
 
-        <div className="space-y-4 py-4">
-          <div className="">
-            {menuItems.map((cat) => (
-              <>
-                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">{cat.title}</h2>
-
-                <div className="space-y-1 ml-4">
-                  {cat.list.map((item) => (
-                    <MenuLink item={item} key={item.title} />
-                  ))}
-                </div>
-              </>
-            ))}
-          </div>
-        </div>
+        <SideMenu setExpand={setSideMenuIsExpand} />
       </div>
 
-      <div className="logout space-y-4   ">
-        <div className="">
-          <div className="space-y-1">
-            <form
-              action={async () => {
-                "use server";
-                await signOut({redirectTo: "/login"});
-              }}
-            >
-              <Button variant="secondary" className="w-full justify-start">
-                <MdLogout className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            </form>
-          </div>
-        </div>
-      </div>
+      {/* <LogOut /> */}
     </nav>
   );
 };
