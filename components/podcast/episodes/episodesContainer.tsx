@@ -4,34 +4,26 @@ import type {Episodes} from "@types";
 import {useQuery} from "@tanstack/react-query";
 import {Loading} from "@components/ui/loading";
 import {NothingFound} from "@components/shared/NothingFound";
-import dayjs from "dayjs";
-import {ScrollArea} from "@components/ui/scroll-area";
-import {Archive, ArchiveX, MoreVertical, Search, Save} from "lucide-react";
+import {Search} from "lucide-react";
 import {Input} from "@components/ui/input";
 
-import {Separator} from "@components/ui/separator";
 import EpisodesList from "./episodesList";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@components/ui/tooltip";
-import {Button} from "@components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@components/ui/dropdown-menu";
 
-import {toast} from "sonner";
-
+import {useSearchParams} from "next/navigation";
+import EpisodesPlayer from "./episodesPlayer";
 
 interface EpisodesContainerProps {
   podcastInfo: {
-    id:number;
+    id: number;
     rssUrl: string;
+    podcastName: string;
   };
 }
 
 export const EpisodesContainer = ({podcastInfo}: EpisodesContainerProps) => {
-  const {data, isLoading,error} = useQuery({
+  const searchParam = useSearchParams();
+  const episodeId = searchParam.get("episode") || "";
+  const {data, isLoading, error} = useQuery({
     queryKey: [`podcast-${podcastInfo.id}`],
     queryFn: async () => {
       return await fectPodCast();
@@ -64,10 +56,19 @@ export const EpisodesContainer = ({podcastInfo}: EpisodesContainerProps) => {
     }).then((res) => {
       if (res.status === 200) {
         return res.json();
-      }else{
+      } else {
         return Promise.reject(res);
       }
     });
+
+    if (episodeId) {
+      console.log(episodeId,"param");
+      const episode = res.find((item) => item.id === Number(episodeId));
+      console.log(episode,"find");
+      if (episode) {
+        setEpisodes(episode);
+      }
+    }
 
     return res;
   };
@@ -77,7 +78,9 @@ export const EpisodesContainer = ({podcastInfo}: EpisodesContainerProps) => {
   }
 
   if (error) {
-    return <div className="flex justify-center items-center text-red-500">Something went wrong</div>;
+    return (
+      <div className="flex justify-center items-center text-red-500">Something went wrong</div>
+    );
   }
 
   if (!data) {
@@ -88,7 +91,7 @@ export const EpisodesContainer = ({podcastInfo}: EpisodesContainerProps) => {
     setEpisodes(episode);
   };
   return (
-    <div className="flex">
+    <div className="flex h-[calc(100vh-90px)]">
       <div className="max-w-[400px] min-w-[390px] w-full pr-2 ">
         <div className="bg-background/95  backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <form>
@@ -114,131 +117,15 @@ export const EpisodesContainer = ({podcastInfo}: EpisodesContainerProps) => {
           <EpisodesList episodes={data} currentEpisode={episodes} handleClick={handleClick} />
         )}
       </div>
-      <div className="flex-grow p-2  border">
-        {episodes && <EpisodesDetail episodes={episodes} change={changeListenedStatus} />}
-      </div>
-    </div>
-  );
-};
-
-type EpisodesDetailProps = {
-  episodes: Episodes;
-  change: (status: boolean) => void;
-};
-
-const EpisodesDetail = ({episodes, change}: EpisodesDetailProps) => {
-  const changeListenedStatus = async () => {
-    fetch(`/api/podcast/episodes`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({id: episodes.id, listened: !episodes.Listened}),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.msg === "success") {
-          toast.success("Update Successful");
-          change(!episodes.Listened);
-        }
-      })
-      .catch((err) => {
-        toast.error("Update Failure");
-        console.log(err);
-      });
-  };
-
-  return (
-    <div className="flex flex-col gap-3 ">
-      <TooltipProvider>
-        <div className="flex items-center p">
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                {episodes.Listened ? (
-                  <Button variant="ghost" size="icon">
-                    <Archive className="h-4 w-4" />
-                    <span className="sr-only">Listened</span>
-                  </Button>
-                ) : (
-                  <Button variant="ghost" size="icon">
-                    <ArchiveX className="h-4 w-4" /> <span className="sr-only">UnListened</span>
-                  </Button>
-                )}
-              </TooltipTrigger>
-              <TooltipContent>{episodes.Listened ? "Listened" : "UnListened"}</TooltipContent>
-            </Tooltip>
-
-          </div>
-
-          <div className="ml-auto flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    toast.success("This feature is not yet implemented");
-                  }}
-                >
-
-
-                  <Save className="h-4 w-4" />
-                  <span className="sr-only">Save</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Share</TooltipContent>
-            </Tooltip>
-          </div>
-
-          <Separator orientation="vertical" className="mx-2 h-6" />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">More</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={changeListenedStatus}>
-                {episodes.Listened ? "Mark UnListened" : "Mark Listened"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </TooltipProvider>
-      <Separator />
-
-      <div className="p-2">
-        <div className="flex  items-start ">
-          <img
-            className="h-[150px] w-[150px] rounded"
-            src={episodes.img ? episodes.img : "/assets/images/podcast/cover.jpg"}
-            alt=""
+      <div className="flex-grow p-2  h-[calc(100vh-90px)] max-h-[calc(100vh-90px)] border">
+        {episodes && (
+          <EpisodesPlayer
+            podcastName={podcastInfo.podcastName}
+            episodes={episodes}
+            change={changeListenedStatus}
           />
-          <div className="flex flex-col gap-3 p-2   w-full">
-            <div className="flex justify-between">
-              <h3 className="ml-2">{episodes.title}</h3>
-              <p className="text-gray-400 text-xs">
-                publish date：{dayjs(episodes.publishedAt).format("YYYY-MM-DD")}
-              </p>
-            </div>
-            <div className="m-2">
-              <audio className="w-full" src={episodes.audio} autoPlay controls />
-            </div>
-          </div>
-        </div>
+        )}
       </div>
-
-      <Separator />
-
-      <ScrollArea className="h-[400px]">
-        <div
-          className="mt-2 p-2  max-h-[350px]"
-          dangerouslySetInnerHTML={{__html: episodes.description}}
-        />
-      </ScrollArea>
     </div>
   );
 };

@@ -10,9 +10,20 @@ import Link from "next/link";
 import {toast} from "sonner";
 import type {Podcast} from "@types";
 import {useRouter} from "next/navigation";
+import {favoriteStore} from "@lib/data/favorite";
+import React, {useEffect} from "react";
 
 const PodcastItem = ({podcast}: {podcast: Podcast}) => {
   const router = useRouter();
+
+  const [favorite, setFavorite] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    const res = favoriteStore.isFavorite(podcast.id);
+
+    setFavorite(res);
+  }, []);
+
   const deletePodcast = async () => {
     fetch(`/api/podcast`, {
       method: "DELETE",
@@ -37,13 +48,36 @@ const PodcastItem = ({podcast}: {podcast: Podcast}) => {
         toast.error("Delete Failure");
       });
   };
+
+  const favoritePodcast = async () => {
+    if (favorite) {
+      favoriteStore.remove(podcast.id);
+      setFavorite(false);
+      toast.success("UnFavorite Successful");
+    } else {
+      const success = favoriteStore.saveOrUpdate(podcast);
+      if (!success) {
+        toast.error("Already favorite");
+      } else {
+        toast.success("Favorite Successful");
+        setFavorite(true);
+      }
+    }
+  };
   return (
     <div key={podcast.id} className="flex flex-col hover:translate-y-2 border rounded p-2 ">
       <ContextMenu>
         <ContextMenuTrigger>
           <Link href={`/dashboard/podcast/${podcast.id}`}>
-            <img width={250} height={200} className="rounded p" src={podcast.image} alt="" />
-            <div className="flex justify-center">{podcast.name}</div>
+            <div className="relative">
+              <img width={250} height={200} className="rounded p" src={podcast.image} alt="" />
+              <div className="flex justify-center">{podcast.name}</div>
+              {favorite && (
+                <div className="absolute top-2 right-2">
+                  <Star color="yellow" />
+                </div>
+              )}
+            </div>
           </Link>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-[200px]">
@@ -51,13 +85,15 @@ const PodcastItem = ({podcast}: {podcast: Podcast}) => {
             <Delete className="w-4 h-4 mr-2" />
             Delete <ContextMenuShortcut>⌘R</ContextMenuShortcut>
           </ContextMenuItem>
+
+          <ContextMenuItem onClick={favoritePodcast}>
+            <Star className="w-4 h-4 mr-2" />
+            {favorite ? "UnFavorite" : "Favorite"}
+          </ContextMenuItem>
+
           <ContextMenuItem disabled>
             <Aperture className="w-4 h-4 mr-2" />
             WebSite
-          </ContextMenuItem>
-          <ContextMenuItem disabled>
-            <Star className="w-4 h-4 mr-2" />
-            Favorite
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

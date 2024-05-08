@@ -45,3 +45,17 @@ export interface  EpisodesInfo{
     description:string
 }
 
+
+
+
+export interface ListentingEpisodes{
+    id: number
+    podcastId: number
+    podcastName: string
+    title: string;
+    img: string
+    publishedAt: string;
+    duration: number;
+    process: number;
+}
+

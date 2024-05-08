@@ -39,7 +39,7 @@ const SideMenu = ({setExpand}: SideMenuProps) => {
       <div className="space-y-4 py-4">
         <div className="">
           {menuItems.map((cat) => (
-            <>
+            <div key={cat.title}>
               <h2
                 className={cn(
                   "mb-2 px-4 text-lg font-semibold tracking-tight",
@@ -54,7 +54,7 @@ const SideMenu = ({setExpand}: SideMenuProps) => {
                   <MenuLink item={item} key={item.title} isExpand={isExpand} />
                 ))}
               </div>
-            </>
+            </div>
           ))}
         </div>
       </div>

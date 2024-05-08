@@ -46,3 +46,11 @@ const isAfterLastUpdate = (lastUpdate: Date | null, hours: number): boolean => {
   const timeDifferenceInHours = Math.abs(timeDifference) / 1000 / 60 / 60;
   return timeDifferenceInHours > hours;
 };
+
+export async function queryLastedEpisodes(limit: number) {
+  return db.episodes.findMany({
+    take: limit,
+    where: {Listened: false},
+    orderBy: {publishedAt: "desc"},
+  });
+}

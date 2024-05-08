@@ -24,7 +24,14 @@ const PodcastRssFeedPage = async ({params}: FeedProps) => {
   ];
   return (
     <DashboardContainer breadcrumb={breadcrumbItems} className="flex flex-col">
-      <EpisodesContainer key={podcastInfo.id} podcastInfo={podcastInfo} />
+      <EpisodesContainer
+        key={podcastInfo.id}
+        podcastInfo={{
+          id: podcastInfo.id,
+          rssUrl: podcastInfo.rssUrl,
+          podcastName: podcastInfo.name,
+        }}
+      />
     </DashboardContainer>
   );
 };
