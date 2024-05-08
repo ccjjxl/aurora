@@ -4,7 +4,7 @@ import {auth, signOut} from "@auth";
 import Sidebar from "@components/dashboard/sidebar/sidebar";
 import {ReactQueryProviderForDashboard} from "@app/providers/react-query-provider";
 import {Toaster} from "@components/ui/sonner";
-import LogOut from "@components/dashboard/sidebar/logout";
+import UserNav from "@components/dashboard/sidebar/logout";
 
 export const metadata: Metadata = {
   title: {
@@ -28,7 +28,7 @@ export default async function DashboardLayout({
     <>
       <div className="flex h-screen overflow-hidden">
         <Sidebar session={session} />
-        <LogOut />
+        <UserNav />
 
         <ReactQueryProviderForDashboard>
           <main className="w-full border-l">{children}</main>
